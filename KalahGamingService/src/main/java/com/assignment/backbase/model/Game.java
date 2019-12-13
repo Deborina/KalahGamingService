@@ -19,28 +19,28 @@ public class Game {
 
 	
 	private String url;
-	@JsonIgnore
-	private Map<Integer, Integer> board;
+	//@JsonIgnore
+	private Map<Integer, Integer> status;
 
-	@JsonIgnore
-	private Status status;
+	//@JsonIgnore
+	private Status gameStatus;
 	
-	@JsonIgnore
+	//@JsonIgnore
 	private Player player;
 
 	public Game() {
 		initializeBoard();
-		status = Status.IN_PROGRESS;
+		gameStatus = Status.IN_PROGRESS;
 		player = Player.FIRST_PLAYER;
 	}
 
 	private void initializeBoard() {
-		board = new HashMap<>();
+		status = new HashMap<>();
 		for (int i = GamingConstants.FIRST_PIT_INDEX; i <= GamingConstants.LAST_PIT_INDEX; i++) {
 			int firstKhalIndex = Player.FIRST_PLAYER.getKalahId();
 			int secondKhalIndex = Player.SECOND_PLAYER.getKalahId();
 			int value = (i != firstKhalIndex && i != secondKhalIndex) ? GamingConstants.INITIAL_STONES_QUANTITY : 0;
-			board.put(i, value);
+			status.put(i, value);
 		}
 	}
 
@@ -62,19 +62,19 @@ public class Game {
 	}
 
 	public Map<Integer, Integer> getBoard() {
-		return board;
-	}
-
-	public void setBoard(Map<Integer, Integer> board) {
-		this.board = board;
-	}
-
-	public Status getStatus() {
 		return status;
 	}
 
-	public void setStatus(Status status) {
-		this.status = status;
+	public void setBoard(Map<Integer, Integer> board) {
+		this.status = board;
+	}
+
+	public Status getStatus() {
+		return gameStatus;
+	}
+
+	public void setStatus(Status gameStatus) {
+		this.gameStatus = gameStatus;
 	}
 
 	public Player getPlayer() {

@@ -25,7 +25,7 @@ GameService gameService;
     	 return ResponseEntity.status(HttpStatus.CREATED).body(gameService.createGame());
     }
 
-    @PutMapping("/games/{gameId}/pits/{pitId}")
+    @PutMapping("/{gameId}/pits/{pitId}")
     @ResponseStatus(HttpStatus.OK)
     public Game makeMove(@PathVariable String gameId,
                             @PathVariable int pitId) {
