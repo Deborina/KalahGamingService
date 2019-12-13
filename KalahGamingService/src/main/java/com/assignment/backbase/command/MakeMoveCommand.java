@@ -1,5 +1,6 @@
 package com.assignment.backbase.command;
 
+
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,12 @@ public class MakeMoveCommand implements GameCommand {
 
 	@Override
 	public void execute(Game game, int pitId) {
-		validatePitNumber(pitId, game);
+		try {
+			validatePitNumber(pitId, game);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		Map<Integer, Integer> board = game.getBoard();
 		int amount = board.get(pitId);
@@ -52,68 +58,103 @@ public class MakeMoveCommand implements GameCommand {
 		}
 	}
 
-	private void clearPit(int pitId, Map<Integer, Integer> board) {
-		// TODO Auto-generated method stub
+	
+    private void checkLastPit(int lastPit, Game game) {
+        if (lastPitWasOwnEmptyPit(lastPit, game)) {
+            int oppositePit = getOppositePit(lastPit);
+            int oppositePitAmount = game.getBoard().get(oppositePit);
+            if (oppositePitAmount != 0) {
+                clearPit(oppositePit, game.getBoard());
+                clearPit(lastPit, game.getBoard());
+                addStonesToPit(game.getPlayer().getKalahId(), game.getBoard(), oppositePitAmount + 1);
+            }
+        }
+    }
+    private boolean gameIsTerminated(Game game) {
+        Player player = game.getPlayer();
+        List<Integer> pits = player.getPits();
+        Map<Integer, Integer> board = game.getBoard();
 
-	}
+        boolean playerPitsAreEmpty = pits.stream()
+                .map(board::get)
+                .allMatch(stoneNumbers -> stoneNumbers == 0);
 
-	private Status findTheWinner(Game game) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        boolean oppositePlayerPitsAreEmpty = player.getOppositePlayer().getPits().stream()
+                .map(board::get)
+                .allMatch(stoneNumbers -> stoneNumbers == 0);
 
-	private boolean gameIsTerminated(Game game) {
-		Player player = game.getPlayer();
-		List<Integer> pits = player.getPits();
-		Map<Integer, Integer> board = game.getBoard();
+        if (playerPitsAreEmpty || oppositePlayerPitsAreEmpty) {
+            addAllRemainedStonesToKalah(player, board);
+            addAllRemainedStonesToKalah(player.getOppositePlayer(), board);
+            return true;
+        }
+        return false;
+    }
 
-		boolean playerPitsAreEmpty = pits.stream().map(board::get).allMatch(stoneNumbers -> stoneNumbers == 0);
+    private void addAllRemainedStonesToKalah(Player player, Map<Integer, Integer> board ) {
+        player.getPits().forEach(pit -> {
+            int amount = board.get(pit);
+            if (amount != 0) {
+                int kalahId = player.getKalahId();
+                board.replace(kalahId, board.get(kalahId) + amount);
+                clearPit(pit, board);
+            }
+        });
+    }
 
-		boolean oppositePlayerPitsAreEmpty = player.getOppositePlayer().getPits().stream().map(board::get)
-				.allMatch(stoneNumbers -> stoneNumbers == 0);
+    private Status findTheWinner(Game game) {
+        Map<Integer, Integer> board = game.getBoard();
+        int firstPlayerStones = board.get(Player.FIRST_PLAYER.getKalahId());
+        int secondPlayerStones = board.get(Player.SECOND_PLAYER.getKalahId());
+        if (firstPlayerStones > secondPlayerStones) {
+            return Status.FIRST_PLAYER_WIN;
+        }else if (firstPlayerStones < secondPlayerStones) {
+            return Status.SECOND_PLAYER_WIN;
+        }else {
+            return Status.DRAW;
+        }
+    }
 
-		if (playerPitsAreEmpty || oppositePlayerPitsAreEmpty) {
-			addAllRemainedStonesToKalah(player, board);
-			addAllRemainedStonesToKalah(player.getOppositePlayer(), board);
-			return true;
-		}
-		return false;
-	}
+    private void validatePitNumber(int pitId, Game game) throws Exception {
+        Player player = game.getPlayer();
+        if (pitId == player.getKalahId() || pitId == player.getOppositePlayer().getKalahId()) {
+            throw new Exception("You can not select Kalah!");
+        }
 
-	private boolean playerHasAnotherTurn(int lastPit, Player player) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+        if (pitId < GamingConstants.FIRST_PIT_INDEX || pitId >GamingConstants.LAST_PIT_INDEX) {
+            throw new Exception("Provided pitId is out of bounds...");
+        }
 
-	private void checkLastPit(int lastPit, Game game) {
-		if (lastPitWasOwnEmptyPit(lastPit, game)) {
-			int oppositePit = getOppositePit(lastPit);
-			int oppositePitAmount = game.getBoard().get(oppositePit);
-			if (oppositePitAmount != 0) {
-				clearPit(oppositePit, game.getBoard());
-				clearPit(lastPit, game.getBoard());
-				addStonesToPit(game.getPlayer().getKalahId(), game.getBoard(), oppositePitAmount + 1);
-			}
-		}
-	}
+        if (!isUserPit(pitId, player)) {
+            throw new Exception("It is not your turn!");
+        }
+        if (game.getBoard().get(pitId) == 0) {
+            throw new Exception("You can not select empty pit!");
+        }
+    }
 
-	private void addStonesToPit(int currentPit, Map<Integer, Integer> board, int i) {
+    private boolean lastPitWasOwnEmptyPit(int lastPitId, Game game) {
+        Map<Integer, Integer> board = game.getBoard();
+        return board.get(lastPitId) == 1 && isUserPit(lastPitId, game.getPlayer());
+    }
 
-	}
+    private boolean isUserPit(int pitId, Player player) {
+        return player.getPits().contains(pitId);
+    }
 
-	private void validatePitNumber(int pitId, Game game) {
-		// TODO Auto-generated method stub
+    private int getOppositePit(int pitId) {
+        return GamingConstants.LAST_PIT_INDEX - pitId;
+    }
 
-	}
+    private boolean playerHasAnotherTurn(int lastPitId, Player player) {
+        return player.getKalahId() == lastPitId;
+    }
 
-	private void addAllRemainedStonesToKalah(Player player, Map<Integer, Integer> board) {
-		player.getPits().forEach(pit -> {
-			int amount = board.get(pit);
-			if (amount != 0) {
-				int kalahId = player.getKalahId();
-				board.replace(kalahId, board.get(kalahId) + amount);
-				clearPit(pit, board);
-			}
-		});
-	}
+    private void addStonesToPit(int pitId, Map<Integer, Integer> board, int amount) {
+        board.replace(pitId, board.get(pitId) + amount);
+    }
+
+    private void clearPit(int pitId, Map<Integer, Integer> board) {
+        board.replace(pitId, 0);
+    }
 }

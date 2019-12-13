@@ -25,11 +25,17 @@ GameService gameService;
     	 return ResponseEntity.status(HttpStatus.CREATED).body(gameService.createGame());
     }
 
-    @PutMapping("/{gameId}/pits/{pitId}")
-    public Game makeMove(@PathVariable int gameId,
+    @PutMapping("/games/{gameId}/pits/{pitId}")
+    @ResponseStatus(HttpStatus.OK)
+    public Game makeMove(@PathVariable String gameId,
                             @PathVariable int pitId) {
-								return null;
-
-       // return service.makeMove(gameId, pitId);
+    	Game game = null;
+       try {
+    	   game = gameService.makeMove(gameId, pitId);
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return game;
     }
 }

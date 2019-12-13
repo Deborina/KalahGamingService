@@ -14,15 +14,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Component
 public class Game {
 
+	
 	private String id;
 
+	
 	private String url;
-
+	@JsonIgnore
 	private Map<Integer, Integer> board;
 
 	@JsonIgnore
 	private Status status;
-
+	
+	@JsonIgnore
 	private Player player;
 
 	public Game() {
@@ -53,7 +56,6 @@ public class Game {
 	public String getUrl() {
 		return url;
 	}
-
 	@Value("${game.url}")
 	public void setUrl(String url) {
 		this.url = url;

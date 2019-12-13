@@ -6,4 +6,5 @@ public interface GameDao {
 
 	Game createGame();
 	Game findGameById(String gameId);
+	Game saveGame(Game game) throws Exception;
 }

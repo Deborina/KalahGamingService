@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import com.assignment.backbase.model.Game;
@@ -14,10 +15,11 @@ public class GameDaoImpl implements GameDao {
 
 	@Autowired
 	ApplicationCache cache;
-
+	@Autowired
+	Game game;
 	@Override
 	public Game createGame() {
-		Game game = new Game();
+		
 		cache.setGame(game);
 		Map<String, Game> gameMap = new HashMap<>();
 		gameMap.put(game.getId(), game);
@@ -30,6 +32,21 @@ public class GameDaoImpl implements GameDao {
 	public Game findGameById(String gameId) {
 
 		return cache.getGameMap().get(gameId);
+	}
+
+	@Override
+	public Game saveGame(Game game) throws Exception {
+		if(null== game)
+		{
+			throw new Exception("Game to be saved is null");
+		}
+		String gameId = game.getId();
+		Game  gameObj = findGameById(gameId);
+			gameObj.setBoard(game.getBoard());
+			gameObj.setPlayer(game.getPlayer());
+			gameObj.setStatus(game.getStatus());
+			gameObj.setUrl(game.getUrl());
+		return gameObj;
 	}
 
 }
