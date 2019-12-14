@@ -12,25 +12,26 @@ import com.assignment.backbase.model.Game;
 @Scope(scopeName = "singleton")
 public class ApplicationCache {
 
-	private   Map<String, Game> gameMap = new HashMap<>();
+	private   Map<String, Game> gameMap ;
 	
-	public void setGameMap(Map<String, Game> gameMap) {
-		this.gameMap = gameMap;
+	
+	
+	public ApplicationCache() {
+		super();
+		this.gameMap = new HashMap<>();
 	}
 
-	private Game game;
 
-	public Game getGame() {
-		return game;
-	}
-
-	public void setGame(Game game) {
-		this.game = game;
-	}
 
 	public Map<String, Game> getGameMap() {
 		return gameMap;
 	}
 	
+	public void put(String key, Game game) {
+		gameMap.put(key, game);
+	}
 	
+	public Game get(String key) {
+		return gameMap.get(key);
+	}
 }

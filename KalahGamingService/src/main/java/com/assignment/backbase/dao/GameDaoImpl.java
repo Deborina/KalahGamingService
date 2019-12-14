@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import com.assignment.backbase.exceptions.ApplicationException;
 import com.assignment.backbase.model.Game;
 import com.assignment.backbase.util.ApplicationCache;
 
@@ -20,10 +21,7 @@ public class GameDaoImpl implements GameDao {
 	@Override
 	public Game createGame() {
 		
-		cache.setGame(game);
-		Map<String, Game> gameMap = new HashMap<>();
-		gameMap.put(game.getId(), game);
-		cache.setGameMap(gameMap);
+		cache.put(game.getId(), game);
 		return game;
 
 	}
@@ -31,22 +29,23 @@ public class GameDaoImpl implements GameDao {
 	@Override
 	public Game findGameById(String gameId) {
 
-		return cache.getGameMap().get(gameId);
+		return cache.get(gameId);
 	}
 
 	@Override
-	public Game saveGame(Game game) throws Exception {
-		if(null== game)
+	public Game saveGame(Game game)  {
+		if(null!= game)
 		{
-			throw new Exception("Game to be saved is null");
-		}
 		String gameId = game.getId();
 		Game  gameObj = findGameById(gameId);
 			gameObj.setStatus(game.getStatus());
 			gameObj.setPlayer(game.getPlayer());
 			gameObj.setGameStatus(game.getGameStatus());
 			gameObj.setUrl(game.getUrl());
-		return gameObj;
+			cache.put(gameId, gameObj);
+		return cache.get(gameId);
+		}
+		return game;
 	}
 
 }
