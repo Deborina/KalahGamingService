@@ -16,16 +16,13 @@ public class Game {
 
 	
 	private String id;
-
-	
 	private String url;
-	//@JsonIgnore
 	private Map<Integer, Integer> status;
 
-	//@JsonIgnore
+	@JsonIgnore
 	private Status gameStatus;
 	
-	//@JsonIgnore
+	@JsonIgnore
 	private Player player;
 
 	public Game() {
@@ -61,21 +58,6 @@ public class Game {
 		this.url = url;
 	}
 
-	public Map<Integer, Integer> getBoard() {
-		return status;
-	}
-
-	public void setBoard(Map<Integer, Integer> board) {
-		this.status = board;
-	}
-
-	public Status getStatus() {
-		return gameStatus;
-	}
-
-	public void setStatus(Status gameStatus) {
-		this.gameStatus = gameStatus;
-	}
 
 	public Player getPlayer() {
 		return player;
@@ -85,4 +67,22 @@ public class Game {
 		this.player = player;
 	}
 
+	public Map<Integer, Integer> getStatus() {
+		return status;
+	}
+
+	public void setStatus(Map<Integer, Integer> status) {
+		this.status = status;
+	}
+
+	public Status getGameStatus() {
+		return gameStatus;
+	}
+
+	public void setGameStatus(Status gameStatus) {
+		this.gameStatus = gameStatus;
+	}
+
+	
+	
 }

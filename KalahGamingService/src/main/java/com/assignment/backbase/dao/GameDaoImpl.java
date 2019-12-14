@@ -42,9 +42,9 @@ public class GameDaoImpl implements GameDao {
 		}
 		String gameId = game.getId();
 		Game  gameObj = findGameById(gameId);
-			gameObj.setBoard(game.getBoard());
-			gameObj.setPlayer(game.getPlayer());
 			gameObj.setStatus(game.getStatus());
+			gameObj.setPlayer(game.getPlayer());
+			gameObj.setGameStatus(game.getGameStatus());
 			gameObj.setUrl(game.getUrl());
 		return gameObj;
 	}

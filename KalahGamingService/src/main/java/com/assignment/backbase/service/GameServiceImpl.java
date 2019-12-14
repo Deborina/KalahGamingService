@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import com.assignment.backbase.command.GameCommand;
 import com.assignment.backbase.dao.GameDao;
 import com.assignment.backbase.enums.Status;
+import com.assignment.backbase.exceptions.IllegalGameStateException;
+import com.assignment.backbase.exceptions.ResourceNotFoundException;
 import com.assignment.backbase.model.Game;
 
 @Service
@@ -26,20 +28,11 @@ public class GameServiceImpl implements GameService{
 	@Override
 	public Game makeMove(String gameId, int pitId)  {
 		if(null == gameDao.findGameById(gameId))
-			try {
-				throw new Exception("Game with id: " + gameId + " not found.");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		
+				throw new ResourceNotFoundException("Game with id: " + gameId + " not found.");
 		Game game = gameDao.findGameById(gameId);
-		 Status status = game.getStatus();
+		 Status status = game.getGameStatus();
 	        if (status != Status.IN_PROGRESS) {
-	            try {
-					throw new Exception("Game has been already terminated with status:" + status);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+					throw new IllegalGameStateException("Game has been already terminated with status:" + status, status);
 	        }
 	        gameCommand.execute(game, pitId);
 	        Game savedGame = null;

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.assignment.backbase.enums.Player;
 import com.assignment.backbase.enums.Status;
+import com.assignment.backbase.exceptions.ApplicationException;
 import com.assignment.backbase.model.Game;
 import com.assignment.backbase.util.GamingConstants;
 
@@ -19,14 +20,13 @@ public class MakeMoveCommand implements GameCommand {
 		try {
 			validatePitNumber(pitId, game);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		Map<Integer, Integer> board = game.getBoard();
+		Map<Integer, Integer> board = game.getStatus();
 		int amount = board.get(pitId);
 		int lastIndex = pitId + amount;
-		clearPit(pitId, game.getBoard());
+		clearPit(pitId, game.getStatus());
 
 		int lastPit = lastIndex;
 		for (int currentIndex = pitId + 1; currentIndex <= lastIndex; currentIndex++) {
@@ -54,7 +54,7 @@ public class MakeMoveCommand implements GameCommand {
 		}
 		if (gameIsTerminated(game)) {
 			Status winner = findTheWinner(game);
-			game.setStatus(winner);
+			game.setGameStatus(winner);
 		}
 	}
 
@@ -62,18 +62,18 @@ public class MakeMoveCommand implements GameCommand {
     private void checkLastPit(int lastPit, Game game) {
         if (lastPitWasOwnEmptyPit(lastPit, game)) {
             int oppositePit = getOppositePit(lastPit);
-            int oppositePitAmount = game.getBoard().get(oppositePit);
+            int oppositePitAmount = game.getStatus().get(oppositePit);
             if (oppositePitAmount != 0) {
-                clearPit(oppositePit, game.getBoard());
-                clearPit(lastPit, game.getBoard());
-                addStonesToPit(game.getPlayer().getKalahId(), game.getBoard(), oppositePitAmount + 1);
+                clearPit(oppositePit, game.getStatus());
+                clearPit(lastPit, game.getStatus());
+                addStonesToPit(game.getPlayer().getKalahId(), game.getStatus(), oppositePitAmount + 1);
             }
         }
     }
     private boolean gameIsTerminated(Game game) {
         Player player = game.getPlayer();
         List<Integer> pits = player.getPits();
-        Map<Integer, Integer> board = game.getBoard();
+        Map<Integer, Integer> board = game.getStatus();
 
         boolean playerPitsAreEmpty = pits.stream()
                 .map(board::get)
@@ -103,7 +103,7 @@ public class MakeMoveCommand implements GameCommand {
     }
 
     private Status findTheWinner(Game game) {
-        Map<Integer, Integer> board = game.getBoard();
+        Map<Integer, Integer> board = game.getStatus();
         int firstPlayerStones = board.get(Player.FIRST_PLAYER.getKalahId());
         int secondPlayerStones = board.get(Player.SECOND_PLAYER.getKalahId());
         if (firstPlayerStones > secondPlayerStones) {
@@ -118,23 +118,23 @@ public class MakeMoveCommand implements GameCommand {
     private void validatePitNumber(int pitId, Game game) throws Exception {
         Player player = game.getPlayer();
         if (pitId == player.getKalahId() || pitId == player.getOppositePlayer().getKalahId()) {
-            throw new Exception("You can not select Kalah!");
+            throw new ApplicationException("You are not authorized to select   Kalah!");
         }
 
         if (pitId < GamingConstants.FIRST_PIT_INDEX || pitId >GamingConstants.LAST_PIT_INDEX) {
-            throw new Exception("Provided pitId is out of bounds...");
+            throw new ApplicationException("Invalid Pit Id");
         }
 
         if (!isUserPit(pitId, player)) {
-            throw new Exception("It is not your turn!");
+            throw new ApplicationException("It is not your turn");
         }
-        if (game.getBoard().get(pitId) == 0) {
-            throw new Exception("You can not select empty pit!");
+        if (game.getStatus().get(pitId) == 0) {
+            throw new ApplicationException("Selected pit is empty");
         }
     }
 
     private boolean lastPitWasOwnEmptyPit(int lastPitId, Game game) {
-        Map<Integer, Integer> board = game.getBoard();
+        Map<Integer, Integer> board = game.getStatus();
         return board.get(lastPitId) == 1 && isUserPit(lastPitId, game.getPlayer());
     }
 
