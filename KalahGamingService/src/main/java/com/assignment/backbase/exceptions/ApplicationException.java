@@ -1,6 +1,6 @@
 package com.assignment.backbase.exceptions;
 
-public class ApplicationException extends Exception {
+public class ApplicationException extends RuntimeException {
 
 	public ApplicationException() {
 		// TODO Auto-generated constructor stub
@@ -10,6 +10,5 @@ public class ApplicationException extends Exception {
 		super(message);
 		// TODO Auto-generated constructor stub
 	}
-
 
 }
